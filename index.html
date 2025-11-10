@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <!-- 引入 Element UI 组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="./static/css/index.css">
     <style>
         .left-detail-panel,
         .right-panel,
@@ -174,269 +174,6 @@
             border: 2px solid #fff;
             position: relative;
         }
-
-        /* 添加缩放按钮样式 */
-        .zoom-controls {
-            position: absolute;
-            right: 20px;
-            bottom: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-        }
-
-        .zoom-btn {
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #666;
-            transition: all 0.2s;
-        }
-
-        .zoom-btn:hover {
-            background: #f5f5f5;
-        }
-
-        .zoom-btn:first-child {
-            border-bottom: 1px solid #eee;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .zoom-btn:last-child {
-            border-radius: 0 0 8px 8px;
-        }
-
-        .zoom-btn:disabled {
-            color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .zoom-percentage {
-            position: absolute;
-            right: 70px;
-            bottom: 20px;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            font-size: 14px;
-            color: #666;
-            z-index: 100;
-        }
-
-        /* 修改可标记区域样式 */
-        .markable-area {
-            position: absolute;
-            width: 30%;
-            height: 30%;
-            border: 2px dashed #00b050;
-            background-color: rgba(0, 176, 80, 0.1);
-            z-index: 1;
-            transition: all 0.3s ease;
-            cursor: crosshair;
-            pointer-events: auto;
-        }
-
-
-        .out-of-range-dialog-mask {
-            position: fixed;
-            left: 0; top: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.08);
-            z-index: 4000;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-        }
-        .out-of-range-dialog {
-            background: #fff;
-            border-radius: 2rem;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.13);
-            padding: 1.2rem 1.8rem 1.2rem 1.8rem;
-            width: 500px;
-            height: 300px;
-            text-align: left;
-            font-family: 'Segoe UI', 'Arial', 'Microsoft YaHei', sans-serif;
-            position: fixed;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .out-of-range-title {
-            color: #e53935;
-            font-size: 1.1rem;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-        .out-of-range-content {
-            color: #222;
-            font-size: 1rem;
-        }
-        .out-of-range-list {
-            color: #111;
-            font-size: 0.98rem;
-            margin: 0;
-            margin-left: 1.2rem;
-        }
-        .out-of-range-list li {
-            margin-bottom: 0.3rem;
-            line-height: 1.6;
-        }
-        .out-of-range-btn-row {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-top: 0.5rem;
-        }
-        .out-of-range-btn {
-            background: #9ddbc6;
-            color: #fff;
-            border: none;
-            border-radius: 0.7rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-            padding: 0.4rem 2rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            outline: none;
-        }
-        .out-of-range-btn:hover {
-            background: #7fcbb2;
-        }
-        .carousel-container {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 3001;
-            width: 500px;
-            max-width: 90vw;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .carousel-bubble {
-            background: #fff;
-            border-radius: 2rem;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.13);
-            padding: 0.2rem 2rem ;
-            display: flex;
-            align-items: center;
-            min-height: 90px;
-            min-width: 500px;
-            max-width: 100%;
-            width: 500px;
-            height: 120px;
-            font-size: 12px;
-            color: #333;
-            position: relative;
-            flex-direction: row;
-            transition: none;
-        }
-        .carousel-close-btn {
-            position: absolute;
-            right: 18px;
-            top: 12px;
-            width: 22px;
-            height: 22px;
-            border: none;
-            background: none;
-            color: #aaa;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 2;
-            transition: color 0.2s;
-        }
-        .carousel-close-btn:hover {
-            color: #e53935;
-        }
-        .carousel-slide-outer {
-            flex: 1;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-            width: 100%;
-        }
-        .horizontal-slide-enter-active, .horizontal-slide-leave-active {
-            transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s cubic-bezier(.4,0,.2,1);
-        }
-        .horizontal-slide-enter {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        .horizontal-slide-enter-to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        .horizontal-slide-leave-active {
-            position: absolute;
-            left: 0; right: 0;
-        }
-        .horizontal-slide-leave-to {
-            transform: translateX(-100%);
-            opacity: 0;
-        }
-        .carousel-text-outer {
-            position: relative;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            width: 100%;
-        }
-        .carousel-avatar {
-            width: 38px;
-            /* height: 38px; */
-            /* border-radius: 50%; */
-            /* background: #eee; */
-            margin-right: 18px;
-            flex-shrink: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
-        .carousel-user-label {
-            font-size: 11px;
-            color: #aaa;
-            margin-top: 2px;
-            margin-bottom: 0;
-            text-align: center;
-        }
-        .carousel-dots {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 8px;
-            gap: 8px;
-            position: absolute;
-            left: 0; right: 0;
-            bottom: 10px;
-        }
-        .carousel-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #d3d3d3;
-            transition: background 0.2s;
-        }
-        .carousel-dot.active {
-            background: #aaa;
-        }
     </style>
 </head>
 
@@ -451,7 +188,7 @@
         <div class="container" style="position: relative;">
             <div :class="['sidebar-float', {collapsed: !sidebarOpen}]">
                 <div class="sidebar-header" v-show="sidebarOpen">
-                    <img src="image/banner.png" alt="" style="width: 100%; height: 100%;">
+                    <img src="./static/image/banner.png" alt="" style="width: 100%; height: 100%;">
                 </div>
                 <div class="sidebar-content" v-if="sidebarOpen">
                     <div class="sidebar-content-header">
@@ -489,45 +226,31 @@
             </div>
             <div class="image-content" ref="imageContent" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag"
                 @mouseleave="endDrag" @click="handleImageClick($event)">
-                <div :class="['draggable-img-wrapper', {dragging: isDragging}]"
-                    :style="{transform: 'translate(' + imgOffset.x + 'px, ' + imgOffset.y + 'px) scale(' + zoomLevel + ')'}">
-                    <img class="draggable-img" ref="draggableImg" src="image/bgc.jpg" draggable="false" />
-                    <!-- 添加可标记区域 -->
-                    <div class="markable-area" 
-                        :style="{
-                            left: (imgSize.width * 0.4) + 'px',
-                            top: (imgSize.height * 0.25) + 'px',
-                            width: (imgSize.width * 0.3) + 'px',
-                            height: (imgSize.height * 0.3) + 'px'
-                        }"
-                        @click.stop="handleMarkableAreaClick($event)">
-                    </div>
-                    <div v-for="(point, idx) in commentPoints" :key="idx"
-                        :class="['comment-point', {active: activePointId === point.id}]" :style="pointStyle(point)"
-                        @mouseenter="onPointMouseEnter(idx)" @mouseleave="onPointMouseLeave"
-                        @click.stop="showRightPanel(point)">
-                        <span class="comment-dot"></span>
-                        <div v-if="hoverPoint === idx" class="comment-card-popover" @mouseenter="onPopoverMouseEnter"
-                            @mouseleave="onPopoverMouseLeave">
-                            <div class="comment-card-header">
-                                <span class="comment-dot"></span>
-                                <span class="comment-type">{{ point.type === 'negative' ? 'Negative' : point.type ===
-                                    'positive' ? 'Positive' : 'Neutral' }}</span>
-                                <span class="comment-like"><i class="el-icon-thumb"></i>{{ point.likes }}</span>
-                            </div>
-                            <div class="comment-time">{{ point.time }}</div>
-                            <div class="comment-card-detail-title">Provide more detail about your pin:</div>
-                            <div class="comment-card-content">{{ point.comment }}</div>
-                            <div class="comment-card-btn">
-                                <button class="read-more-btn" @click="showRightPanel(point, $event)">Read
-                                    more</button>
-                            </div>
+                <div v-for="(point, idx) in commentPoints" :key="idx"
+                    :class="['comment-point', {active: activePointId === point.id}]" :style="pointStyle(point)"
+                    @mouseenter="onPointMouseEnter(idx)" @mouseleave="onPointMouseLeave"
+                    @click.stop="showRightPanel(point)">
+                    <span class="comment-dot"></span>
+                    <div v-if="hoverPoint === idx" class="comment-card-popover" @mouseenter="onPopoverMouseEnter"
+                        @mouseleave="onPopoverMouseLeave">
+                        <div class="comment-card-header">
+                            <span class="comment-dot"></span>
+                            <span class="comment-type">{{ point.type === 'negative' ? 'Negative' : point.type ===
+                                'positive' ? 'Positive' : 'Neutral' }}</span>
+                            <span class="comment-like"><i class="el-icon-thumb"></i>{{ point.likes }}</span>
+                        </div>
+                        <div class="comment-time">{{ point.time }}</div>
+                        <div class="comment-card-detail-title">Provide more detail about your pin:</div>
+                        <div class="comment-card-content">{{ point.comment }}</div>
+                        <div class="comment-card-btn">
+                            <button class="read-more-btn" @click="showRightPanel(point, $event)">Read
+                                more</button>
                         </div>
                     </div>
-                    <div v-if="addPointMode && previewPin" class="comment-point active" :style="pointStyle(previewPin)"
-                        @click.stop="openPinForm">
-                        <span class="comment-dot"></span>
-                    </div>
+                </div>
+                <div v-if="addPointMode && previewPin" class="comment-point active" :style="pointStyle(previewPin)"
+                    @click.stop="openPinForm">
+                    <span class="comment-dot"></span>
                 </div>
                 <button v-if="!addPointMode" class="have-your-say-btn add-comment-btn" @click.stop="enableAddPoint">
                     Have your say
@@ -560,11 +283,10 @@
                         </button>
                     </div>
                 </div>
-                <div class="zoom-controls">
-                    <button class="zoom-btn" @click="zoomIn" :disabled="zoomLevel >= 3">+</button>
-                    <button class="zoom-btn" @click="zoomOut" :disabled="zoomLevel <= 0.4">-</button>
+                <div :class="['draggable-img-wrapper', {dragging: isDragging}]"
+                    :style="{transform: 'translate(' + imgOffset.x + 'px, ' + imgOffset.y + 'px)'}">
+                    <img class="draggable-img" ref="draggableImg" src="./static/image/bgc.jpg" draggable="false" />
                 </div>
-                <div class="zoom-percentage">{{ Math.round(zoomLevel * 100) }}%</div>
             </div>
             <div class="sidebar-toggle-btn-outer" :style="{ left: sidebarOpen ? '23.5rem' : '0' }">
                 <button @click="sidebarOpen = !sidebarOpen">
@@ -636,7 +358,7 @@
                     </svg>
                 </button>
                 <div class="form-title">
-                    <img width="20" height="20" src="image/android.png"
+                    <img width="20" height="20" src="./static/image/android.png"
                         style="vertical-align:middle;margin-right:8px;">
                     Have your say
                 </div>
@@ -797,7 +519,7 @@
                     <div class="form-section">
                         <div class="validate-section">
                             <div class="validate-section-img">
-                                <img src="image/opinion-urn.png" alt="urn" />
+                                <img src="./static/image/opinion-urn.png" alt="urn" />
                             </div>
                             <div class="validate-section-content">
                                 <div class="validate-title">Validate your response</div>
@@ -828,43 +550,6 @@
                 </div>
             </div>
         </div>
-        <div v-if="showOutOfRangeDialog" class="out-of-range-dialog-mask">
-            <div class="out-of-range-dialog">
-                <div class="out-of-range-title">NOTICE: OUT OF RANGE</div>
-                <div class="out-of-range-content">The pin you placed is outside the range</div>
-                <ol class="out-of-range-list">
-                    <li>If the entry is correct, please add a comment explaining the cause of it being placed (for example the pin closely connect one place of range).</li>
-                    <li>It is a placing mistake, correct the entry.</li>
-                    <li>You can place the pin in the marked line area.</li>
-                </ol>
-                <div class="out-of-range-btn-row">
-                    <button class="out-of-range-btn" @click="showOutOfRangeDialog = false">Continue</button>
-                </div>
-            </div>
-        </div>
-        <div v-if="showCarousel" class="carousel-container">
-            <div class="carousel-bubble">
-                <button class="carousel-close-btn" @click="stopCarousel();showCarousel=false">×</button>
-                <div class="carousel-slide-outer">
-                    <transition name="horizontal-slide" mode="out-in">
-                        <div :key="carouselIndex" style="display:flex;align-items:center;width:100%;height:100%;">
-                            <div class="carousel-avatar">
-                                <span v-html="carouselAvatars[carouselIndex]"></span>
-                                <div class="carousel-user-label" v-text="carouselUsernames[carouselIndex]"> 11111111</div>
-                            </div>
-                            <div class="carousel-content">
-                                <div class="carousel-text-outer">
-                                    {{ carouselList[carouselIndex] }}
-                                </div>
-                            </div>
-                        </div>
-                    </transition>
-                    <div class="carousel-dots">
-                        <span v-for="(item, idx) in carouselList" :key="idx" class="carousel-dot" :class="{active: idx === carouselIndex}"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <script>
         new Vue({
@@ -874,8 +559,8 @@
                     commentPoints: [
                         {
                             id: 1,
-                            x: 45,
-                            y: 35,
+                            x: 30,
+                            y: 40,
                             type: 'negative',
                             time: '4 months ago',
                             comment: 'I hate cycling through the new Mean wood junction',
@@ -891,8 +576,8 @@
                         },
                         {
                             id: 2,
-                            x: 55,
-                            y: 40,
+                            x: 60,
+                            y: 25,
                             type: 'positive',
                             time: '2 months ago',
                             comment: 'Great new bike lane!',
@@ -908,8 +593,8 @@
                         },
                         {
                             id: 3,
-                            x: 50,
-                            y: 45,
+                            x: 80,
+                            y: 70,
                             type: 'neutral',
                             time: '1 month ago',
                             comment: "It's ok, but could be better",
@@ -933,7 +618,7 @@
                     isDragging: false,
                     dragStart: { x: 0, y: 0 },
                     imgOffset: { x: 0, y: 0 },
-                    imgSize: { width: 4400, height: 3900 },
+                    imgSize: { width: 1400, height: 900 },
                     rightPanelVisible: false,
                     rightPanelData: null,
                     showPinForm: false,
@@ -972,23 +657,7 @@
                     previewPin: null,
                     activePointId: null,
                     showPlacePinModal: false,
-                    hoverFeel: null,
-                    zoomLevel: 0.9, // 默认90%缩放
-                    showOutOfRangeDialog: false,
-                    showCarousel: false,
-                    carouselIndex: 0,
-                    carouselTimer: null,
-                    carouselList: [
-                        'I feel most valued when my opinions are acknowledged and responded because it shows that my contributions are making a difference and are taken seriously by decision-makers.',
-                        'The aspects I enjoy are the interactive discussions and voting mechanisms because they provide a sense of collaboration and transparency in decision-making.',
-                        'Get me excited is seeing tangible results or updates on how my input was used because it reinforces the idea that my participation has impacts and fosters trust in the process.'
-                    ],
-                    carouselAvatars: [
-                        `<svg width='38' height='38' viewBox='0 0 38 38' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='19' cy='19' r='19' fill='#B3E5FC'/><ellipse cx='19' cy='16' rx='7' ry='7' fill='#fff'/><ellipse cx='19' cy='32' rx='12' ry='7' fill='#fff'/></svg>`,
-                        `<svg width='38' height='38' viewBox='0 0 38 38' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='19' cy='19' r='19' fill='#FFCCBC'/><ellipse cx='19' cy='16' rx='7' ry='7' fill='#fff'/><ellipse cx='19' cy='32' rx='12' ry='7' fill='#fff'/></svg>`,
-                        `<svg width='38' height='38' viewBox='0 0 38 38' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='19' cy='19' r='19' fill='#C8E6C9'/><ellipse cx='19' cy='16' rx='7' ry='7' fill='#fff'/><ellipse cx='19' cy='32' rx='12' ry='7' fill='#fff'/></svg>`
-                    ],
-                    carouselUsernames: ['Alice', 'Bob', 'Charlie'],
+                    hoverFeel: null
                 }
             },
             methods: {
@@ -1001,33 +670,15 @@
                     this.previewPin = null;
                     this.showPinForm = false;
                     this.sidebarOpen = false;
-                    this.showCarousel = true;
-                    this.carouselIndex = 0;
-                    this.startCarousel();
                 },
                 handleImageClick(e) {
                     if (!this.addPointMode) return;
-                    // 如果点击的是缩放按钮或其子元素，直接返回
-                    if (e.target.closest('.zoom-controls')) return;
                     const imgRect = e.currentTarget.querySelector('.draggable-img').getBoundingClientRect();
                     const mouseX = e.clientX - imgRect.left;
                     const mouseY = e.clientY - imgRect.top;
-                    const x = ((mouseX - this.imgOffset.x) / this.zoomLevel / this.imgSize.width) * 100;
-                    const y = ((mouseY - this.imgOffset.y) / this.zoomLevel / this.imgSize.height) * 100;
-                    const markableArea = {
-                        left: 40,
-                        right: 70,
-                        top: 25,
-                        bottom: 55
-                    };
-                    const isInMarkableArea = x >= markableArea.left && 
-                                           x <= markableArea.right && 
-                                           y >= markableArea.top && 
-                                           y <= markableArea.bottom;
-                    if (!isInMarkableArea) {
-                        this.showOutOfRangeDialog = true;
-                        return;
-                    }
+                    const x = (mouseX / this.imgSize.width) * 100;
+                    const y = (mouseY / this.imgSize.height) * 100;
+                    if (x < 0 || x > 100 || y < 0 || y > 100) return;
                     this.previewPin = { x, y };
                     this.showPlacePinModal = false;
                     this.showPinForm = true;
@@ -1078,8 +729,8 @@
                 },
                 pointStyle(point) {
                     // 计算点在大图上的绝对位置
-                    const left = this.imgSize.width * point.x / 100;
-                    const top = this.imgSize.height * point.y / 100;
+                    const left = this.imgSize.width * point.x / 100 + this.imgOffset.x;
+                    const top = this.imgSize.height * point.y / 100 + this.imgOffset.y;
                     return {
                         left: left + 'px',
                         top: top + 'px',
@@ -1106,8 +757,6 @@
                 },
                 openPinForm() {
                     this.showPinForm = true;
-                    this.showCarousel = false;
-                    this.stopCarousel();
                 },
                 closePinForm() {
                     this.showPinForm = false;
@@ -1116,8 +765,6 @@
                     this.editMode = false;
                     this.editPointIndex = null;
                     this.resetPinForm();
-                    this.showCarousel = false;
-                    this.stopCarousel();
                 },
                 resetPinForm() {
                     this.pinForm = {
@@ -1187,64 +834,6 @@
                         this.rightPanelData.likes = this.commentPoints[idx].likes;
                     }
                 },
-                zoomIn() {
-                    if (this.zoomLevel < 3) {
-                        this.zoomLevel += 0.1;
-                    }
-                },
-                zoomOut() {
-                    if (this.zoomLevel > 0.4) {
-                        this.zoomLevel -= 0.1;
-                    }
-                },
-                // 添加初始化方法
-                initMapPosition() {
-                    // 计算初始偏移量，使地图填充容器
-                    const container = this.$refs.imageContent;
-                    if (container) {
-                        const containerRect = container.getBoundingClientRect();
-                        const img = this.$refs.draggableImg;
-                        const imgWidth = img.naturalWidth || img.width;
-                        const imgHeight = img.naturalHeight || img.height;
-                        
-                        // 设置默认缩放为90%
-                        this.zoomLevel = 0.9;
-                        
-                        // 计算初始偏移量，使可标记区域在视图中居中
-                        const markableAreaCenterX = imgWidth * 0.55; // 40% + 30%/2
-                        const markableAreaCenterY = imgHeight * 0.4; // 25% + 30%/2
-                        
-                        this.imgOffset = {
-                            x: containerRect.width/2 - markableAreaCenterX * this.zoomLevel,
-                            y: containerRect.height/2 - markableAreaCenterY * this.zoomLevel
-                        };
-                    }
-                },
-                handleMarkableAreaClick(e) {
-                    if (!this.addPointMode) return;
-                    
-                    const markableArea = e.currentTarget.getBoundingClientRect();
-                    const mouseX = e.clientX - markableArea.left;
-                    const mouseY = e.clientY - markableArea.top;
-                    
-                    // 计算在可标记区域内的相对位置（百分比）
-                    const x = (mouseX / markableArea.width) * 30 + 40; // 40-70% 范围
-                    const y = (mouseY / markableArea.height) * 30 + 25; // 25-55% 范围
-                    
-                    this.previewPin = { x, y };
-                    this.showPlacePinModal = false;
-                    this.showPinForm = true;
-                },
-                startCarousel() {
-                    if (this.carouselTimer) clearInterval(this.carouselTimer);
-                    this.carouselTimer = setInterval(() => {
-                        this.carouselIndex = (this.carouselIndex + 1) % this.carouselList.length;
-                    }, 5000);
-                },
-                stopCarousel() {
-                    if (this.carouselTimer) clearInterval(this.carouselTimer);
-                    this.carouselTimer = null;
-                },
             },
             watch: {
                 showPinForm(val) {
@@ -1262,11 +851,6 @@
                             el.classList.remove('place-pin-cursor');
                         }
                     }
-                });
-
-                // 初始化地图位置
-                this.$nextTick(() => {
-                    this.initMapPosition();
                 });
             }
         })
