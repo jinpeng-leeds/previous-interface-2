@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue2 + Element UI 示例</title>
+    <!-- 引入 Vue 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- 引入 Element UI 样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入 Element UI 组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="./static/css/index.css">
+    <style>
+        .left-detail-panel,
+        .right-panel,
+        .place-pin-form-float {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 23.5rem;
+            height: 100%;
+            background: #fff;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+            color: #222;
+            font-family: 'Segoe UI', 'Arial', 'Microsoft YaHei', sans-serif;
+            box-sizing: border-box;
+            z-index: 210;
+        }
+
+        .left-detail-panel {
+            z-index: 210;
+        }
+
+        .right-panel {
+            z-index: 220;
+        }
+
+        .place-pin-form-float {
+            transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s cubic-bezier(.4,0,.2,1);
+            transform: translateX(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .place-pin-form-float.slide-in-left {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .right-panel.show {
+            transform: none;
+        }
+
+        /* Place Pin Modal 精准还原截图样式 */
+        .place-pin-modal-outer {
+            position: fixed;
+            right: 1.5rem;
+            top: 5.875rem;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            width: 15rem;
+            height: 5.5rem;
+            align-items: flex-end;
+        }
+
+        .place-pin-modal-box {
+            background: #fff;
+            border-radius: 2rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.13);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            width: calc(100% - 2rem);
+        }
+
+        .place-pin-modal-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .place-pin-modal-title-row svg {
+            color: #00b050;
+            margin-right: 10px;
+            width: 32px;
+            height: 32px;
+        }
+
+        .place-pin-modal-title-text {
+            font-weight: bold;
+            font-size: 1.35rem;
+            color: #111;
+        }
+
+        .place-pin-modal-subtitle {
+            color: #444;
+            margin: 0px;
+            font-size: 0.8125rem !important;
+            margin-top: 0.2rem;
+            text-align: center;
+        }
+
+        .place-pin-cancel-btn-outer {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            font-size: 0.8125rem !important;
+            top: -35px;
+            z-index: 1;
+        }
+
+        .map-cancel-btn {
+            padding: 0px;
+            width: 6.5625rem;
+            height: 2.625rem;
+            min-height: 0px;
+            min-width: 0px;
+            box-shadow: rgba(0, 0, 0, 0.18) 0px 0.1875rem 0.25rem;
+            border: none;
+            background: rgb(232, 0, 48);
+            color: rgb(255, 255, 255);
+            border-radius: 1.3125rem;
+            font-weight: bold;
+            font-size: 1.08rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            box-sizing: border-box;
+            position: relative;
+            top: 24px;
+        }
+
+        .map-cancel-btn:hover {
+            background: #c62828;
+            color: #fff;
+        }
+
+        .map-cancel-btn svg {
+            margin-right: 0.7em;
+            width: 12px;
+            height: 12px;
+            vertical-align: middle;
+            fill: #fff;
+        }
+
+        .map-cancel-btn-label {
+            font-size: 0.85 !important;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .comment-dot, .comment-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e60030;
+            box-shadow: 0 2px 8px rgba(230,0,48,0.25), 0 0 0 2px #fff;
+            border: 2px solid #fff;
+            position: relative;
+        }
+
+        /* 添加缩放按钮样式 */
+        .zoom-controls {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .zoom-btn:first-child {
+            border-bottom: 1px solid #eee;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .zoom-btn:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .zoom-btn:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .zoom-percentage {
+            position: absolute;
+            right: 70px;
+            bottom: 20px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            color: #666;
+            z-index: 100;
+        }
+
+        /* 修改可标记区域样式 */
+        .markable-area {
+            position: absolute;
+            width: 30%;
+            height: 30%;
+            border: 2px dashed #00b050;
+            background-color: rgba(0, 176, 80, 0.1);
+            z-index: 1;
+            transition: all 0.3s ease;
+            cursor: crosshair;
+            pointer-events: auto;
+        }
+
+
+        .out-of-range-dialog-mask {
+            position: fixed;
+            left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.08);
+            z-index: 4000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .out-of-range-dialog {
+            background: #fff;
+            border-radius: 2rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+            padding: 1.2rem 1.8rem 1.2rem 1.8rem;
+            width: 500px;
+            height: 300px;
+            text-align: left;
+            font-family: 'Segoe UI', 'Arial', 'Microsoft YaHei', sans-serif;
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .out-of-range-title {
+            color: #e53935;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        .out-of-range-content {
+            color: #222;
+            font-size: 1rem;
+        }
+        .out-of-range-list {
+            color: #111;
+            font-size: 0.98rem;
+            margin: 0;
+            margin-left: 1.2rem;
+        }
+        .out-of-range-list li {
+            margin-bottom: 0.3rem;
+            line-height: 1.6;
+        }
+        .out-of-range-btn-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        .out-of-range-btn {
+            background: #9ddbc6;
+            color: #fff;
+            border: none;
+            border-radius: 0.7rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0.4rem 2rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            outline: none;
+        }
+        .out-of-range-btn:hover {
+            background: #7fcbb2;
+        }
+        .carousel-container {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3001;
+            width: 500px;
+            max-width: 90vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .carousel-bubble {
+            background: #fff;
+            border-radius: 2rem;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.13);
+            padding: 0.2rem 2rem ;
+            display: flex;
+            align-items: center;
+            min-height: 90px;
+            min-width: 500px;
+            max-width: 100%;
+            width: 500px;
+            height: 120px;
+            font-size: 12px;
+            color: #333;
+            position: relative;
+            flex-direction: row;
+            transition: none;
+        }
+        .carousel-close-btn {
+            position: absolute;
+            right: 18px;
+            top: 12px;
+            width: 22px;
+            height: 22px;
+            border: none;
+            background: none;
+            color: #aaa;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        .carousel-close-btn:hover {
+            color: #e53935;
+        }
+        .carousel-slide-outer {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+        .horizontal-slide-enter-active, .horizontal-slide-leave-active {
+            transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s cubic-bezier(.4,0,.2,1);
+        }
+        .horizontal-slide-enter {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        .horizontal-slide-enter-to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .horizontal-slide-leave-active {
+            position: absolute;
+            left: 0; right: 0;
+        }
+        .horizontal-slide-leave-to {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        .carousel-text-outer {
+            position: relative;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            width: 100%;
+        }
+        .carousel-avatar {
+            width: 38px;
+            /* height: 38px; */
+            /* border-radius: 50%; */
+            /* background: #eee; */
+            margin-right: 18px;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .carousel-user-label {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+            margin-bottom: 0;
+            text-align: center;
+        }
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 8px;
+            gap: 8px;
+            position: absolute;
+            left: 0; right: 0;
+            bottom: 10px;
+        }
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #d3d3d3;
+            transition: background 0.2s;
+        }
+        .carousel-dot.active {
+            background: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" style="height: 100%;">
+        <div class="custom-header">
+            <i class="el-icon-arrow-left back-icon"
+                style="color: rgb(102, 102, 102); font-size: 1.4285714285714284rem;"></i>
+            <span class="main-title">Home</span>
+            <span class="sub-title">Comment on cycling</span>
+        </div>
+        <div class="container" style="position: relative;">
+            <div :class="['sidebar-float', {collapsed: !sidebarOpen}]">
+                <div class="sidebar-header" v-show="sidebarOpen">
+                    <img src="./static/image/banner.png" alt="" style="width: 100%; height: 100%;">
+                </div>
+                <div class="sidebar-content" v-if="sidebarOpen">
+                    <div class="sidebar-content-header">
+                        <div class="sidebar-content-header-title">Comment about cycling</div>
+                        <button class="sidebar-share-btn" title="Share">
+                            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                                <path
+                                    d="M15.833 13.333a2.5 2.5 0 1 0-2.357-3.333l-6.952-3.476a2.5 2.5 0 1 0-.524 1.524l6.952 3.476a2.5 2.5 0 1 0 .524-1.524z"
+                                    stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="sidebar-meta">Comments <span>{{ commentPoints.length }}</span></div>
+                    <div class="sidebar-meta">Reactions 0</div>
+                    <hr class="sidebar-divider" />
+                    <div style="line-height:1.7;">
+                        Click on the purple 'Have your say' button and drop a pin on the map to tell us about cycling in
+                        your area.<br>
+                        Please note: for general road, pothole and pavement maintenance reporting, visit <a href="#"
+                            class="sidebar-link">the Leeds City Council site</a>.
+                    </div>
+                    <div class="sidebar-learn-more">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M9 18l6-6-6-6" stroke="#009900" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        Learn more about Leeds Streets for All
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-toggle-btn-outer" :style="{ left: sidebarOpen ? '23.5rem' : '0' }">
+                <button @click="sidebarOpen = !sidebarOpen">
+                    <i :class="sidebarOpen ? 'el-icon-arrow-left' : 'el-icon-arrow-right'"></i>
+                </button>
+            </div>
+            <div class="image-content" ref="imageContent" @mousedown="startDrag" @mousemove="onDrag" @mouseup="endDrag"
+                @mouseleave="endDrag" @click="handleImageClick($event)">
+                <div :class="['draggable-img-wrapper', {dragging: isDragging}]"
+                    :style="{transform: 'translate(' + imgOffset.x + 'px, ' + imgOffset.y + 'px) scale(' + zoomLevel + ')'}">
+                    <img class="draggable-img" ref="draggableImg" src="./static/image/bgc.jpg" draggable="false" />
+                    <!-- 添加可标记区域 -->
+                    <div class="markable-area" 
+                        :style="{
+                            left: (imgSize.width * 0.4) + 'px',
+                            top: (imgSize.height * 0.25) + 'px',
+                            width: (imgSize.width * 0.3) + 'px',
+                            height: (imgSize.height * 0.3) + 'px'
+                        }"
+                        @click.stop="handleMarkableAreaClick($event)">
+                    </div>
+                    <div v-for="(point, idx) in commentPoints" :key="idx"
+                        :class="['comment-point', {active: activePointId === point.id}]" :style="pointStyle(point)"
+                        @mouseenter="onPointMouseEnter(idx)" @mouseleave="onPointMouseLeave"
+                        @click.stop="showRightPanel(point)">
+                        <span class="comment-dot"></span>
+                        <div v-if="hoverPoint === idx" class="comment-card-popover" @mouseenter="onPopoverMouseEnter"
+                            @mouseleave="onPopoverMouseLeave">
+                            <div class="comment-card-header">
+                                <span class="comment-dot"></span>
+                                <span class="comment-type">{{ point.type === 'negative' ? 'Negative' : point.type ===
+                                    'positive' ? 'Positive' : 'Neutral' }}</span>
+                                <span class="comment-like"><i class="el-icon-thumb"></i>{{ point.likes }}</span>
+                            </div>
+                            <div class="comment-time">{{ point.time }}</div>
+                            <div class="comment-card-detail-title">Provide more detail about your pin:</div>
+                            <div class="comment-card-content">{{ point.comment }}</div>
+                            <div class="comment-card-btn">
+                                <button class="read-more-btn" @click="showRightPanel(point, $event)">Read
+                                    more</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="addPointMode && previewPin" class="comment-point active" :style="pointStyle(previewPin)"
+                        @click.stop="openPinForm">
+                        <span class="comment-dot"></span>
+                    </div>
+                </div>
+                <button v-if="!addPointMode" class="have-your-say-btn add-comment-btn" @click.stop="enableAddPoint">
+                    Have your say
+                </button>
+                <div v-if="showPlacePinModal" class="place-pin-modal-outer">
+                    <div class="place-pin-modal-box">
+                        <div class="place-pin-modal-title-row">
+                            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 580 500"
+                                fill="currentColor">
+                                <path
+                                    d="M256,0C153.755,0,70.573,83.182,70.573,185.426c0,126.888,165.939,313.167,173.004,321.035 c6.636,7.391,18.222,7.378,24.846,0c7.065-7.868,173.004-194.147,173.004-321.035C441.425,83.182,358.244,0,256,0z M256,278.719 c-51.442,0-93.292-41.851-93.292-93.293S204.559,92.134,256,92.134s93.291,41.851,93.291,93.293S307.441,278.719,256,278.719z">
+                                </path>
+                            </svg>
+                            <span class="place-pin-modal-title-text">Place the pin</span>
+                        </div>
+                        <div class="place-pin-modal-subtitle">where you'd like to comment</div>
+                    </div>
+                    <div class="place-pin-cancel-btn-outer">
+                        <button class="MuiButtonBase-root MuiButton-root MuiButton-text map-cancel-btn" tabindex="0"
+                            type="button" @click="cancelPlacePin">
+                            <span class="MuiButton-label" style="display:flex;align-items:center;">
+                                <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 21 21">
+                                    <path fill="#fff"
+                                        d="m0.73212,0.73203c0.87823,-0.87825 2.30212,-0.87825 3.18037,0l6.58751,6.58755l6.58759,-6.58755c0.87829,-0.87825 2.30204,-0.87825 3.18033,0c0.87829,0.87821 0.87829,2.30214 0,3.18037l-6.58759,6.58757l6.58759,6.58759c0.87829,0.87829 0.87829,2.30224 0,3.18053c-0.87809,0.87809 -2.30204,0.87809 -3.18033,0l-6.58759,-6.58759l-6.58755,6.58759c-0.87825,0.87809 -2.30214,0.87809 -3.18039,0c-0.87825,-0.87829 -0.87825,-2.30224 0,-3.18053l6.58767,-6.58759l-6.58761,-6.58757c-0.87825,-0.87823 -0.87825,-2.30216 0,-3.18037z">
+                                    </path>
+                                </svg>
+                                <span style="font-size: 12px;">Cancel</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" @click="zoomIn" :disabled="zoomLevel >= 3">+</button>
+                    <button class="zoom-btn" @click="zoomOut" :disabled="zoomLevel <= 0.4">-</button>
+                </div>
+                <div class="zoom-percentage">{{ Math.round(zoomLevel * 100) }}%</div>
+            </div>
+            <div class="sidebar-toggle-btn-outer" :style="{ left: sidebarOpen ? '23.5rem' : '0' }">
+                <button @click="sidebarOpen = !sidebarOpen">
+                    <i :class="sidebarOpen ? 'el-icon-arrow-left' : 'el-icon-arrow-right'"></i>
+                </button>
+            </div>
+            <div :class="['right-panel', {show: rightPanelVisible}]" v-if="rightPanelVisible">
+                <div class="right-panel-header">
+                    Selected contribution
+                    <button class="right-panel-close" @click="rightPanelVisible = false" aria-label="Close">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18" stroke="#222" stroke-width="2" stroke-linecap="round" />
+                            <path d="M6 6L18 18" stroke="#222" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="right-panel-progress"></div>
+                <div class="right-panel-body" v-if="rightPanelData">
+                    <div class="right-panel-row">
+                        <span class="right-panel-dot"></span>
+                        <span class="right-panel-time">{{ rightPanelData.time || '4 months ago' }}</span>
+                        <span class="right-panel-like">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M7 22H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m0 11V9m0 13h7.72a2 2 0 0 0 1.98-1.73l1.2-9A2 2 0 0 0 16.92 9H13V5.5A2.5 2.5 0 0 0 10.5 3c-.28 0-.5.22-.5.5V9"
+                                    stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            {{ rightPanelData.likes }}
+                        </span>
+                    </div>
+                    <div class="right-panel-section-title">Provide more detail about your pin:</div>
+                    <div class="right-panel-section-content">{{ rightPanelData.detail }}</div>
+                    <div class="right-panel-section-title">How do you feel about this?</div>
+                    <div class="right-panel-section-content">{{ rightPanelData.feel }}</div>
+                    <div class="right-panel-section-title">What are you commenting on?</div>
+                    <div class="right-panel-section-content">
+                        <div v-for="item in rightPanelData.commentingOn" :key="item">• {{ item }}</div>
+                    </div>
+                    <div class="right-panel-section-title">Do you live in the project area?</div>
+                    <div class="right-panel-section-content">{{ rightPanelData.liveHere }}</div>
+                    <div class="right-panel-section-title">Any other comments?</div>
+                    <div class="right-panel-section-content">{{ rightPanelData.otherComments }}</div>
+                </div>
+                <div class="right-panel-footer">
+                    <button class="share-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path
+                                d="M15.833 13.333a2.5 2.5 0 1 0-2.357-3.333l-6.952-3.476a2.5 2.5 0 1 0-.524 1.524l6.952 3.476a2.5 2.5 0 1 0 .524-1.524z"
+                                stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Share
+                    </button>
+                    <button class="like-btn" @click="likeCurrentPoint">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M7 22H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2m0 11V9m0 13h7.72a2 2 0 0 0 1.98-1.73l1.2-9A2 2 0 0 0 16.92 9H13V5.5A2.5 2.5 0 0 0 10.5 3c-.28 0-.5.22-.5.5V9"
+                                stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Like
+                    </button>
+                </div>
+            </div>
+            <div v-if="showPinForm" :class="['place-pin-form-float', { 'slide-in-left': showPinForm }]">
+                <button class="close-btn" @click="closePinForm">
+                    <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z">
+                        </path>
+                    </svg>
+                </button>
+                <div class="form-title">
+                    <img width="20" height="20" src="./static/image/android.png"
+                        style="vertical-align:middle;margin-right:8px;">
+                    Have your say
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar" :style="{width: '20%'}"></div>
+                </div>
+                <div class="form-content-scroll">
+                    <div class="form-section">
+                        <div class="form-label">How do you feel about this? <span class="required">*</span></div>
+                        <div aria-labelledby="rating-emoji-group" role="radiogroup" class="rating-emoji-group">
+                            <div class="rating-emoji-item" v-for="(item, idx) in feelOptions" :key="item.value">
+                                <button :data-testid="'RatingButton-smilie'" :index="idx"
+                                    :tabindex="pinForm.feel === item.label ? 0 : -1" :aria-label="item.label"
+                                    role="radio" :aria-checked="pinForm.feel === item.label ? 'true' : 'false'" :class="['rating-emoji-btn', {
+                                        active: pinForm.feel === item.label,
+                                        'bg-red': idx === 0 && pinForm.feel === item.label,
+                                        'bg-orange': idx === 1 && pinForm.feel === item.label,
+                                        'bg-yellow': idx === 2 && pinForm.feel === item.label,
+                                        'bg-yellowgreen': idx === 3 && pinForm.feel === item.label,
+                                        'bg-green': idx === 4 && pinForm.feel === item.label
+                                    }]" type="button" @mouseenter="hoverFeel = item.label"
+                                    @mouseleave="hoverFeel = null" @click="pinForm.feel = item.label">
+                                    <!-- 红色 -->
+                                    <span v-if="item.value === 1">
+                                        <svg v-if="hoverFeel === item.label || pinForm.feel === item.label" width="55"
+                                            height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#e53935" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <path class="organ-stroke" d="M18 36c2-3 7-4 11-4s9 1 11 4" />
+                                        </svg>
+                                        <svg v-else width="55" height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#fff" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <path class="organ-stroke" d="M18 36c2-3 7-4 11-4s9 1 11 4" />
+                                        </svg>
+                                    </span>
+                                    <!-- 橙色 -->
+                                    <span v-else-if="item.value === 2">
+                                        <svg v-if="hoverFeel === item.label || pinForm.feel === item.label" width="55"
+                                            height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#ffa726" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <path class="organ-stroke" d="M19 37c3-2 7-2 10-2s7 0 10 2" />
+                                        </svg>
+                                        <svg v-else width="55" height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#fff" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <path class="organ-stroke" d="M19 37c3-2 7-2 10-2s7 0 10 2" />
+                                        </svg>
+                                    </span>
+                                    <!-- 黄色 -->
+                                    <span v-else-if="item.value === 3">
+                                        <svg v-if="hoverFeel === item.label || pinForm.feel === item.label" width="55"
+                                            height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#fff176" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <line class="organ-stroke" x1="19" y1="37" x2="36" y2="37" />
+                                        </svg>
+                                        <svg v-else width="55" height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#fff" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <line class="organ-stroke" x1="19" y1="37" x2="36" y2="37" />
+                                        </svg>
+                                    </span>
+                                    <!-- 黄绿色 -->
+                                    <span v-else-if="item.value === 4">
+                                        <svg v-if="hoverFeel === item.label || pinForm.feel === item.label" width="55"
+                                            height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#c6ef43" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <path class="organ-stroke" d="M19 37c3 3 13 3 16 0" />
+                                        </svg>
+                                        <svg v-else width="55" height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#fff" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <path class="organ-stroke" d="M19 37c3 3 13 3 16 0" />
+                                        </svg>
+                                    </span>
+                                    <!-- 绿色 -->
+                                    <span v-else-if="item.value === 5">
+                                        <svg v-if="hoverFeel === item.label || pinForm.feel === item.label" width="55"
+                                            height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#00b050" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <path class="organ-stroke" d="M19 34c3 5 13 5 16 0" />
+                                        </svg>
+                                        <svg v-else width="55" height="55" viewBox="0 0 55 55" fill="none">
+                                            <circle fill="#fff" cx="27.5" cy="27.5" r="24" />
+                                            <circle class="face-stroke" cx="27.5" cy="27.5" r="24" fill="none" />
+                                            <ellipse class="organ-stroke" cx="19.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <ellipse class="organ-stroke" cx="35.5" cy="23.5" rx="2.5" ry="3.5" />
+                                            <path class="organ-stroke" d="M19 34c3 5 13 5 16 0" />
+                                        </svg>
+                                    </span>
+                                </button>
+                                <div class="rating-emoji-label">
+                                    <p aria-hidden="true">{{item.label}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="pinForm.feel" class="rating-detail-input-wrap">
+                        <div class="rating-detail-label">Provide more detail about your pin:</div>
+                        <input class="rating-detail-input" v-model="pinForm.detail"
+                            placeholder="e.g. cycle facilities on Broad Lane">
+                    </div>
+                    <div class="form-section">
+                        <div class="form-label">What are you commenting on?</div>
+                        <div class="form-checkbox-group">
+                            <label v-for="item in commentingOnOptions" :key="item"
+                                :class="['form-checkbox', {selected: pinForm.commentingOn.includes(item)}]">
+                                <input type="checkbox" v-model="pinForm.commentingOn" :value="item">
+                                <span>{{item}}</span>
+                            </label>
+                        </div>
+                        <div class="form-add-other" @click="pinForm.addOther = true" v-if="!pinForm.addOther">
+                            <svg width="18" height="18" viewBox="0 0 24 24">
+                                <path d="M12 5v14m7-7H5" stroke="#888" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            Add something else
+                        </div>
+                        <input v-if="pinForm.addOther" class="form-input" v-model="pinForm.otherCommentingOn"
+                            placeholder="Other...">
+                    </div>
+                    <div class="form-section">
+                        <div class="form-label">Do you live in the project area?</div>
+                        <div class="form-radio-group">
+                            <label :class="['form-radio', {selected: pinForm.liveHere === 'Yes'}]">
+                                <input type="radio" v-model="pinForm.liveHere" value="Yes">Yes
+                            </label>
+                            <label :class="['form-radio', {selected: pinForm.liveHere === 'No'}]">
+                                <input type="radio" v-model="pinForm.liveHere" value="No">No
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-label">Any other comments?</div>
+                        <textarea class="form-input" v-model="pinForm.otherComments" rows="2"></textarea>
+                    </div>
+                    <div class="form-section">
+                        <div class="validate-section">
+                            <div class="validate-section-img">
+                                <img src="./static/image/opinion-urn.png" alt="urn" />
+                            </div>
+                            <div class="validate-section-content">
+                                <div class="validate-title">Validate your response</div>
+                                <div class="validate-subtitle">By adding your email, you'll ensure that your
+                                    contribution will be published and included in the evaluation</div>
+                                <div class="validate-row">
+                                    <svg viewBox="0 0 24 24" fill="none">
+                                        <path d="M4 4h16v16H4V4z" stroke="#222" stroke-width="2" />
+                                        <path d="M4 4l8 8 8-8" stroke="#222" stroke-width="2" />
+                                    </svg>
+                                    We'll send you an email with a link to confirm your response
+                                </div>
+                                <input class="validate-email-input" v-model="pinForm.email" placeholder="Email address">
+                                <div class="validate-checkbox-row">
+                                    <input type="checkbox" v-model="pinForm.subscribe" id="validate-subscribe">
+                                    <label for="validate-subscribe">Receive updates and replies about Leeds Streets For
+                                        All and hear about Commonplaces in your area. We'll never publish your personal
+                                        data. See our <a href="#" target="_blank">privacy policy</a> and <a href="#"
+                                            target="_blank">organisations involved</a>.</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="form-btn primary" @click="submitPinForm">Submit</button>
+                    <button class="form-btn" @click="closePinForm">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <div v-if="showOutOfRangeDialog" class="out-of-range-dialog-mask">
+            <div class="out-of-range-dialog">
+                <div class="out-of-range-title">NOTICE: OUT OF RANGE</div>
+                <div class="out-of-range-content">The pin you placed is outside the range</div>
+                <ol class="out-of-range-list">
+                    <li>If the entry is correct, please add a comment explaining the cause of it being placed (for example the pin closely connect one place of range).</li>
+                    <li>It is a placing mistake, correct the entry.</li>
+                    <li>You can place the pin in the marked line area.</li>
+                </ol>
+                <div class="out-of-range-btn-row">
+                    <button class="out-of-range-btn" @click="showOutOfRangeDialog = false">Continue</button>
+                </div>
+            </div>
+        </div>
+        <div v-if="showCarousel" class="carousel-container">
+            <div class="carousel-bubble">
+                <button class="carousel-close-btn" @click="stopCarousel();showCarousel=false">×</button>
+                <div class="carousel-slide-outer">
+                    <transition name="horizontal-slide" mode="out-in">
+                        <div :key="carouselIndex" style="display:flex;align-items:center;width:100%;height:100%;">
+                            <div class="carousel-avatar">
+                                <span v-html="carouselAvatars[carouselIndex]"></span>
+                                <div class="carousel-user-label" v-text="carouselUsernames[carouselIndex]"> 11111111</div>
+                            </div>
+                            <div class="carousel-content">
+                                <div class="carousel-text-outer">
+                                    {{ carouselList[carouselIndex] }}
+                                </div>
+                            </div>
+                        </div>
+                    </transition>
+                    <div class="carousel-dots">
+                        <span v-for="(item, idx) in carouselList" :key="idx" class="carousel-dot" :class="{active: idx === carouselIndex}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    commentPoints: [
+                        {
+                            id: 1,
+                            x: 45,
+                            y: 35,
+                            type: 'negative',
+                            time: '4 months ago',
+                            comment: 'I hate cycling through the new Mean wood junction',
+                            detail: 'I hate cycling through the new Mean wood junction',
+                            feel: 'Very negative',
+                            commentingOn: [
+                                'Junction or roundabout feels unsafe',
+                                "Don't feel safe cycling here"
+                            ],
+                            liveHere: 'Yes',
+                            otherComments: "Honestly, the design of this junction is atrocious for cyclists. I used to ride through here every day. Now I have cars crossing me, I don't know when to stop or go, I seem to have a different layout to what car users have. Just causes confusion. Before, I could just cycle round without any issues. If I wanted to turn off the road into any of the other roads, it was simple and cars knew what I was doing. I honestly wish you never did this - it's incredibly confusing and dangerous for cyclists.",
+                            likes: 0
+                        },
+                        {
+                            id: 2,
+                            x: 55,
+                            y: 40,
+                            type: 'positive',
+                            time: '2 months ago',
+                            comment: 'Great new bike lane!',
+                            detail: 'The new bike lane is smooth and safe.',
+                            feel: 'Very positive',
+                            commentingOn: [
+                                'Bike lane is well designed',
+                                'Feel much safer cycling here'
+                            ],
+                            liveHere: 'No',
+                            otherComments: 'I hope more areas can have this kind of infrastructure.',
+                            likes: 3
+                        },
+                        {
+                            id: 3,
+                            x: 50,
+                            y: 45,
+                            type: 'neutral',
+                            time: '1 month ago',
+                            comment: "It's ok, but could be better",
+                            detail: 'The cycling path is fine, but sometimes blocked by parked cars.',
+                            feel: 'Neutral',
+                            commentingOn: [
+                                'Path blocked occasionally',
+                                'Needs better enforcement'
+                            ],
+                            liveHere: 'Yes',
+                            otherComments: 'Please add more signs to prevent parking on the path.',
+                            likes: 1
+                        }
+                    ],
+                    addPointMode: false,
+                    activePoint: null,
+                    activeComment: '',
+                    hoverPoint: null,
+                    hoverTimer: null,
+                    sidebarOpen: true,
+                    isDragging: false,
+                    dragStart: { x: 0, y: 0 },
+                    imgOffset: { x: 0, y: 0 },
+                    imgSize: { width: 4400, height: 3900 },
+                    rightPanelVisible: false,
+                    rightPanelData: null,
+                    showPinForm: false,
+                    pinForm: {
+                        feel: '',
+                        detail: '',
+                        commentingOn: [],
+                        addOther: false,
+                        otherCommentingOn: '',
+                        liveHere: '',
+                        otherComments: '',
+                        email: '',
+                        subscribe: false
+                    },
+                    editMode: false,
+                    editPointIndex: null,
+                    feelOptions: [
+                        { label: 'Very negative', value: 1, icon: '😞' },
+                        { label: 'Negative', value: 2, icon: '🙁' },
+                        { label: 'Neutral', value: 3, icon: '😐' },
+                        { label: 'Positive', value: 4, icon: '🙂' },
+                        { label: 'Very positive', value: 5, icon: '😁' }
+                    ],
+                    commentingOnOptions: [
+                        'Lack of a cycle lane',
+                        'Lack of clear driving lanes / road markings',
+                        'Junction or roundabout feels unsafe',
+                        'Narrow Road/poor design',
+                        'Lack of separate paths for people walking, wheeling or cycling',
+                        'Nowhere to park the car',
+                        'Obstruction on cycle lane e.g. parked cars, lampposts, street signage, overgrown shrubs',
+                        'Poor signage for driving routes or directions',
+                        'Lack of street lighting',
+                        "Obstructions on the pavement (e.g. parked cars, bins, signage, overgrown plants)",
+                        'Lack of separate bus infrastructure (bus lanes, stops, shelters)',
+                        'Poor signage for walking and cycling routes',
+                        'Cycle lanes/routes not connected well',
+                        'Nowhere safe or sheltered to wait for the bus',
+                        'No nearby bus services / infrequent buses',
+                        'Bus routes not connected well'
+                    ],
+                    previewPin: null,
+                    activePointId: null,
+                    showPlacePinModal: false,
+                    hoverFeel: null,
+                    zoomLevel: 0.9, // 默认90%缩放
+                    showOutOfRangeDialog: false,
+                    showCarousel: false,
+                    carouselIndex: 0,
+                    carouselTimer: null,
+                    carouselList: [
+                        'I feel most valued when my opinions are acknowledged and responded because it shows that my contributions are making a difference and are taken seriously by decision-makers.',
+                        'The aspects I enjoy are the interactive discussions and voting mechanisms because they provide a sense of collaboration and transparency in decision-making.',
+                        'Get me excited is seeing tangible results or updates on how my input was used because it reinforces the idea that my participation has impacts and fosters trust in the process.'
+                    ],
+                    carouselAvatars: [
+                        `<svg width='38' height='38' viewBox='0 0 38 38' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='19' cy='19' r='19' fill='#B3E5FC'/><ellipse cx='19' cy='16' rx='7' ry='7' fill='#fff'/><ellipse cx='19' cy='32' rx='12' ry='7' fill='#fff'/></svg>`,
+                        `<svg width='38' height='38' viewBox='0 0 38 38' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='19' cy='19' r='19' fill='#FFCCBC'/><ellipse cx='19' cy='16' rx='7' ry='7' fill='#fff'/><ellipse cx='19' cy='32' rx='12' ry='7' fill='#fff'/></svg>`,
+                        `<svg width='38' height='38' viewBox='0 0 38 38' fill='none' xmlns='http://www.w3.org/2000/svg'><circle cx='19' cy='19' r='19' fill='#C8E6C9'/><ellipse cx='19' cy='16' rx='7' ry='7' fill='#fff'/><ellipse cx='19' cy='32' rx='12' ry='7' fill='#fff'/></svg>`
+                    ],
+                    carouselUsernames: ['Alice', 'Bob', 'Charlie'],
+                }
+            },
+            methods: {
+                handleBack() {
+                    this.$message({ message: '返回上一页', type: 'info' });
+                },
+                enableAddPoint() {
+                    this.addPointMode = true;
+                    this.showPlacePinModal = true;
+                    this.previewPin = null;
+                    this.showPinForm = false;
+                    this.sidebarOpen = false;
+                    this.showCarousel = true;
+                    this.carouselIndex = 0;
+                    this.startCarousel();
+                },
+                handleImageClick(e) {
+                    if (!this.addPointMode) return;
+                    // 如果点击的是缩放按钮或其子元素，直接返回
+                    if (e.target.closest('.zoom-controls')) return;
+                    const imgRect = e.currentTarget.querySelector('.draggable-img').getBoundingClientRect();
+                    const mouseX = e.clientX - imgRect.left;
+                    const mouseY = e.clientY - imgRect.top;
+                    const x = ((mouseX - this.imgOffset.x) / this.zoomLevel / this.imgSize.width) * 100;
+                    const y = ((mouseY - this.imgOffset.y) / this.zoomLevel / this.imgSize.height) * 100;
+                    const markableArea = {
+                        left: 40,
+                        right: 70,
+                        top: 25,
+                        bottom: 55
+                    };
+                    const isInMarkableArea = x >= markableArea.left && 
+                                           x <= markableArea.right && 
+                                           y >= markableArea.top && 
+                                           y <= markableArea.bottom;
+                    if (!isInMarkableArea) {
+                        this.showOutOfRangeDialog = true;
+                        return;
+                    }
+                    this.previewPin = { x, y };
+                    this.showPlacePinModal = false;
+                    this.showPinForm = true;
+                },
+                showComment(point) {
+                    // 不再弹 dialog，点击只做你需要的业务
+                    // 例如可以直接弹右侧详情，或什么都不做
+                    // this.showRightPanel(point); // 如果你想点击点直接弹详情可以这样
+                },
+                showRightPanel(point, e) {
+                    if (e) e.stopPropagation();
+                    this.rightPanelData = point;
+                    this.rightPanelVisible = true;
+                    this.activePointId = point.id;
+                },
+                showRightPanelFromBtn(point, e) {
+                    e.stopPropagation();
+                    this.showRightPanel(point, e);
+                },
+                startDrag(e) {
+                    // 只允许鼠标左键拖拽
+                    if (e.button !== 0) return;
+                    this.isDragging = true;
+                    this.dragStart = {
+                        x: e.clientX - this.imgOffset.x,
+                        y: e.clientY - this.imgOffset.y
+                    };
+                },
+                onDrag(e) {
+                    if (!this.isDragging) return;
+                    // 获取容器和图片真实宽高
+                    const container = this.$refs.imageContent;
+                    const img = this.$refs.draggableImg;
+                    const containerRect = container.getBoundingClientRect();
+                    const imgWidth = img.naturalWidth || img.width;
+                    const imgHeight = img.naturalHeight || img.height;
+                    let x = e.clientX - this.dragStart.x;
+                    let y = e.clientY - this.dragStart.y;
+                    // 允许图片在容器内自由拖动
+                    const minX = Math.min(0, containerRect.width - imgWidth);
+                    const minY = Math.min(0, containerRect.height - imgHeight);
+                    x = Math.min(0, Math.max(minX, x));
+                    y = Math.min(0, Math.max(minY, y));
+                    this.imgOffset = { x, y };
+                },
+                endDrag() {
+                    this.isDragging = false;
+                },
+                pointStyle(point) {
+                    // 计算点在大图上的绝对位置
+                    const left = this.imgSize.width * point.x / 100;
+                    const top = this.imgSize.height * point.y / 100;
+                    return {
+                        left: left + 'px',
+                        top: top + 'px',
+                        position: 'absolute'
+                    };
+                },
+                submitActiveComment() {
+                    if (!this.activeComment.trim()) {
+                        this.$message.error('Comments can not be empty');
+                        return;
+                    }
+                    this.commentPoints.push({
+                        x: this.activePoint.x,
+                        y: this.activePoint.y,
+                        comment: this.activeComment
+                    });
+                    this.activePoint = null;
+                    this.activeComment = '';
+                },
+                cancelActiveComment() {
+                    this.activePoint = null;
+                    this.activeComment = '';
+                    this.previewPin = null;
+                },
+                openPinForm() {
+                    this.showPinForm = true;
+                    this.showCarousel = false;
+                    this.stopCarousel();
+                },
+                closePinForm() {
+                    this.showPinForm = false;
+                    this.previewPin = null;
+                    this.addPointMode = false;
+                    this.editMode = false;
+                    this.editPointIndex = null;
+                    this.resetPinForm();
+                    this.showCarousel = false;
+                    this.stopCarousel();
+                },
+                resetPinForm() {
+                    this.pinForm = {
+                        feel: '',
+                        detail: '',
+                        commentingOn: [],
+                        addOther: false,
+                        otherCommentingOn: '',
+                        liveHere: '',
+                        otherComments: '',
+                        email: '',
+                        subscribe: false
+                    };
+                },
+                submitPinForm() {
+                    if (!this.pinForm.feel) { this.$message.error('Please choose an emotion'); return; }
+                    // 其他校验略
+                    const newPoint = {
+                        id: this.editMode ? this.commentPoints[this.editPointIndex].id : Date.now(),
+                        x: this.editMode ? this.commentPoints[this.editPointIndex].x : this.previewPin?.x,
+                        y: this.editMode ? this.commentPoints[this.editPointIndex].y : this.previewPin?.y,
+                        type: this.pinForm.feel.toLowerCase().includes('negative') ? 'negative' : this.pinForm.feel.toLowerCase().includes('positive') ? 'positive' : 'neutral',
+                        time: this.editMode ? this.commentPoints[this.editPointIndex].time : 'just now',
+                        comment: this.pinForm.detail,
+                        detail: this.pinForm.detail,
+                        feel: this.pinForm.feel,
+                        commentingOn: this.pinForm.addOther && this.pinForm.otherCommentingOn ? [...this.pinForm.commentingOn, this.pinForm.otherCommentingOn] : this.pinForm.commentingOn,
+                        liveHere: this.pinForm.liveHere,
+                        otherComments: this.pinForm.otherComments,
+                        email: this.pinForm.email,
+                        likes: this.editMode ? this.commentPoints[this.editPointIndex].likes : 0
+                    };
+                    if (this.editMode && this.editPointIndex !== null) {
+                        this.$set(this.commentPoints, this.editPointIndex, newPoint);
+                    } else {
+                        this.commentPoints.push(newPoint);
+                    }
+                    this.closePinForm();
+                },
+                onPointMouseEnter(idx) {
+                    if (this.hoverTimer) clearTimeout(this.hoverTimer);
+                    this.hoverPoint = idx;
+                },
+                onPointMouseLeave() {
+                    this.hoverTimer = setTimeout(() => {
+                        this.hoverPoint = null;
+                    }, 350); // 350ms延迟
+                },
+                onPopoverMouseEnter() {
+                    if (this.hoverTimer) clearTimeout(this.hoverTimer);
+                },
+                onPopoverMouseLeave() {
+                    this.hoverTimer = setTimeout(() => {
+                        this.hoverPoint = null;
+                    }, 350);
+                },
+                cancelPlacePin() {
+                    this.addPointMode = false;
+                    this.showPlacePinModal = false;
+                    this.previewPin = null;
+                },
+                likeCurrentPoint() {
+                    if (!this.rightPanelData) return;
+                    const idx = this.commentPoints.findIndex(p => p.id === this.rightPanelData.id);
+                    if (idx !== -1) {
+                        this.commentPoints[idx].likes += 1;
+                        this.rightPanelData.likes = this.commentPoints[idx].likes;
+                    }
+                },
+                zoomIn() {
+                    if (this.zoomLevel < 3) {
+                        this.zoomLevel += 0.1;
+                    }
+                },
+                zoomOut() {
+                    if (this.zoomLevel > 0.4) {
+                        this.zoomLevel -= 0.1;
+                    }
+                },
+                // 添加初始化方法
+                initMapPosition() {
+                    // 计算初始偏移量，使地图填充容器
+                    const container = this.$refs.imageContent;
+                    if (container) {
+                        const containerRect = container.getBoundingClientRect();
+                        const img = this.$refs.draggableImg;
+                        const imgWidth = img.naturalWidth || img.width;
+                        const imgHeight = img.naturalHeight || img.height;
+                        
+                        // 设置默认缩放为90%
+                        this.zoomLevel = 0.9;
+                        
+                        // 计算初始偏移量，使可标记区域在视图中居中
+                        const markableAreaCenterX = imgWidth * 0.55; // 40% + 30%/2
+                        const markableAreaCenterY = imgHeight * 0.4; // 25% + 30%/2
+                        
+                        this.imgOffset = {
+                            x: containerRect.width/2 - markableAreaCenterX * this.zoomLevel,
+                            y: containerRect.height/2 - markableAreaCenterY * this.zoomLevel
+                        };
+                    }
+                },
+                handleMarkableAreaClick(e) {
+                    if (!this.addPointMode) return;
+                    
+                    const markableArea = e.currentTarget.getBoundingClientRect();
+                    const mouseX = e.clientX - markableArea.left;
+                    const mouseY = e.clientY - markableArea.top;
+                    
+                    // 计算在可标记区域内的相对位置（百分比）
+                    const x = (mouseX / markableArea.width) * 30 + 40; // 40-70% 范围
+                    const y = (mouseY / markableArea.height) * 30 + 25; // 25-55% 范围
+                    
+                    this.previewPin = { x, y };
+                    this.showPlacePinModal = false;
+                    this.showPinForm = true;
+                },
+                startCarousel() {
+                    if (this.carouselTimer) clearInterval(this.carouselTimer);
+                    this.carouselTimer = setInterval(() => {
+                        this.carouselIndex = (this.carouselIndex + 1) % this.carouselList.length;
+                    }, 5000);
+                },
+                stopCarousel() {
+                    if (this.carouselTimer) clearInterval(this.carouselTimer);
+                    this.carouselTimer = null;
+                },
+            },
+            watch: {
+                showPinForm(val) {
+                    if (!val) this.previewPin = null;
+                }
+            },
+            mounted() {
+                // 监听 place pin 模式切换鼠标
+                this.$watch('showPinForm', (val) => {
+                    const el = document.querySelector('.image-content');
+                    if (el) {
+                        if (val) {
+                            el.classList.add('place-pin-cursor');
+                        } else {
+                            el.classList.remove('place-pin-cursor');
+                        }
+                    }
+                });
+
+                // 初始化地图位置
+                this.$nextTick(() => {
+                    this.initMapPosition();
+                });
+            }
+        })
+    </script>
+</body>
+
+</html>
