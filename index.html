@@ -1094,7 +1094,7 @@
                 },
                 submitActiveComment() {
                     if (!this.activeComment.trim()) {
-                        this.$message.error('评论不能为空');
+                        this.$message.error('Comments can not be empty');
                         return;
                     }
                     this.commentPoints.push({
@@ -1139,7 +1139,7 @@
                     };
                 },
                 submitPinForm() {
-                    if (!this.pinForm.feel) { this.$message.error('请选择表情'); return; }
+                    if (!this.pinForm.feel) { this.$message.error('Please choose an emotion'); return; }
                     // 其他校验略
                     const newPoint = {
                         id: this.editMode ? this.commentPoints[this.editPointIndex].id : Date.now(),
