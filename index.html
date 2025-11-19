@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <!-- 引入 Element UI 组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <link rel="stylesheet" href="./static/css/index.css">
+    <link rel="stylesheet" href="css/index.css">
     <style>
         .left-detail-panel,
         .right-panel,
@@ -451,7 +451,7 @@
         <div class="container" style="position: relative;">
             <div :class="['sidebar-float', {collapsed: !sidebarOpen}]">
                 <div class="sidebar-header" v-show="sidebarOpen">
-                    <img src="./static/image/banner.png" alt="" style="width: 100%; height: 100%;">
+                    <img src="image/banner.png" alt="" style="width: 100%; height: 100%;">
                 </div>
                 <div class="sidebar-content" v-if="sidebarOpen">
                     <div class="sidebar-content-header">
@@ -491,7 +491,7 @@
                 @mouseleave="endDrag" @click="handleImageClick($event)">
                 <div :class="['draggable-img-wrapper', {dragging: isDragging}]"
                     :style="{transform: 'translate(' + imgOffset.x + 'px, ' + imgOffset.y + 'px) scale(' + zoomLevel + ')'}">
-                    <img class="draggable-img" ref="draggableImg" src="./static/image/bgc.jpg" draggable="false" />
+                    <img class="draggable-img" ref="draggableImg" src="image/bgc.jpg" draggable="false" />
                     <!-- 添加可标记区域 -->
                     <div class="markable-area" 
                         :style="{
@@ -636,7 +636,7 @@
                     </svg>
                 </button>
                 <div class="form-title">
-                    <img width="20" height="20" src="./static/image/android.png"
+                    <img width="20" height="20" src="image/android.png"
                         style="vertical-align:middle;margin-right:8px;">
                     Have your say
                 </div>
@@ -797,7 +797,7 @@
                     <div class="form-section">
                         <div class="validate-section">
                             <div class="validate-section-img">
-                                <img src="./static/image/opinion-urn.png" alt="urn" />
+                                <img src="image/opinion-urn.png" alt="urn" />
                             </div>
                             <div class="validate-section-content">
                                 <div class="validate-title">Validate your response</div>
